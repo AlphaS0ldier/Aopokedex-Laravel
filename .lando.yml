@@ -1,0 +1,17 @@
+name: aopokedex-laravel
+recipe: laravel
+config:
+  webroot: public
+  php: '8.2'
+services:
+  pma:
+    type: phpmyadmin
+    hosts:
+      - database
+  mailhog:
+    type: mailhog
+    hogfrom:
+      - appserver
+  appserver:
+    type: php:8.2
+    run:
