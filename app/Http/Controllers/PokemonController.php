@@ -7,17 +7,17 @@ use Illuminate\Http\JsonResponse;
 
 class PokemonController extends Controller
 {
-    public function getPokemon(){
+    public static function getPokemon(){
         return response(Pokemon::all());
     }
 
-    public function getPokemonById(Pokemon $pokemon): JsonResponse
+    public static function getPokemonById(Pokemon $pokemon)
     {
-        return response()->json($pokemon);
+        return response($pokemon);
     }
 
-    public function getPokemonByName(Pokemon $pokemon): JsonResponse
+    public static function getPokemonByName(Pokemon $pokemon)
     {
-        return response()->json($pokemon);
+        return response($pokemon);
     }
 }

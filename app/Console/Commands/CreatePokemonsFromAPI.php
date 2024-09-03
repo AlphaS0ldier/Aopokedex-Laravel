@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Pokemon;
 use Illuminate\Console\Command;
 
 use Illuminate\Support\Facades\Http;
@@ -36,7 +37,16 @@ class CreatePokemonsFromAPI extends Command
 
 
         if ($response->successful()) {
-            $data = $response->json();
+            $pokemons = collect(($response->json())['results']);
+
+            foreach ($pokemons as $pokemon) {
+                $exists = Pokemon::where('name', $pokemon['name'])->exists();
+                if ($exists) {
+                    echo "exists";
+                    continue;
+                }
+                break;
+            }
         } else {
             logger()->error('API call failed', ['status' => $response->status(), 'body' => $response->body()]);
         }
