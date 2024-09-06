@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('pokemon', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            //$table->foreign('regions');
-            //$table->foreign('types');
+            //regions;
+            //$table->foreignId('type_1')->constrained('types')->onDelete('cascade');
+            //$table->foreignId('type_1')->nullable()->constrained('types')->onDelete('cascade');
             //$table->foreign('species');
             //$table->foreign('abilities');
             //$table->foreign('evolutions');
-            $table->string('sprite')->nullable();
+            $table->binary('sprite')->nullable();
             $table->string('pokedex_entry')->nullable();
             $table->integer('hp')->nullable();
             $table->integer('attack')->nullable();
