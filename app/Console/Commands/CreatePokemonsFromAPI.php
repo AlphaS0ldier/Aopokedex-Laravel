@@ -97,11 +97,8 @@ class CreatePokemonsFromAPI extends Command
 
                             $sprite = sprintf('%04d', $pokedex_number["entry_number"]) . " " . ucfirst($pokemon->name) . ".png";
 
-                            echo $sprite . PHP_EOL;
-
                             if (Storage::disk('sprites')->exists($sprite)) {
-
-                                $pokemon->update(["sprite" => Storage::disk('sprites')->get($sprite)]);
+                                $pokemon->update(["sprite" => Storage::disk('sprites')->path($sprite)]);
                                 $pokemon->save();
                             }
                         }

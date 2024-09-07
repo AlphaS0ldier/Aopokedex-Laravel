@@ -11,12 +11,8 @@ class Pokemon extends Model
 
     protected $fillable = ["name", "pokedex_entry", "hp", "attack", "defense", "special-attack", "special-defense", "speed", "sprite"];
 
-    protected $casts = [
-        'sprite' => 'binary',
-    ];
-
     public function regions()
     {
-        return $this->belongsToMany(Region::class);
+        return $this->belongsToMany(Region::class)->as("region")->withPivot("pokedex_number");
     }
 }

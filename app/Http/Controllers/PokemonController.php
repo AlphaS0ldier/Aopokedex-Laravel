@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pokemon;
-use Illuminate\Http\JsonResponse;
 
 class PokemonController extends Controller
 {
@@ -11,13 +10,13 @@ class PokemonController extends Controller
         return response(Pokemon::all());
     }
 
-    public static function getPokemonById(Pokemon $pokemon)
+    public static function getPokemonByName(Pokemon $pokemon)
     {
         return response($pokemon);
     }
 
-    public static function getPokemonByName(Pokemon $pokemon)
+    public static function getPokemonSpriteByName(Pokemon $pokemon)
     {
-        return response($pokemon);
+        return response()->file((Pokemon::where('name',$pokemon)->first())->sprite);
     }
 }

@@ -13,6 +13,6 @@ class Region extends Model
 
     public function pokemons()
     {
-        return $this->belongsToMany(Pokemon::class);
+        return $this->belongsToMany(Pokemon::class)->as("region")->withPivot("pokedex_number");
     }
 }

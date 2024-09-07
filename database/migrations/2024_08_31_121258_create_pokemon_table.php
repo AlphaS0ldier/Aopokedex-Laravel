@@ -20,7 +20,7 @@ return new class extends Migration
             //$table->foreign('species');
             //$table->foreign('abilities');
             //$table->foreign('evolutions');
-            $table->binary('sprite')->nullable();
+            $table->string('sprite')->nullable();
             $table->string('pokedex_entry')->nullable();
             $table->integer('hp')->nullable();
             $table->integer('attack')->nullable();
