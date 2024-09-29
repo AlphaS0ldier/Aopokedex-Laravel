@@ -9,10 +9,15 @@ class Pokemon extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["name", "pokedex_entry", "hp", "attack", "defense", "special-attack", "special-defense", "speed", "sprite"];
+    protected $fillable = ["name", "specie","pokedex_entry", "hp", "attack", "defense", "special-attack", "special-defense", "speed", "sprite"];
 
     public function regions()
     {
         return $this->belongsToMany(Region::class)->as("region")->withPivot("pokedex_number");
+    }
+
+    public function types()
+    {
+        return $this->belongsToMany(Type::class)->as("type");
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Pokemon;
 use App\Models\Region;
+use App\Models\Type;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
@@ -58,11 +59,20 @@ class CreatePokemonsFromAPI extends Command
 
                 $pokemon_extra_data = getDataFromPokeApi($pokemon_data["species"]["url"]);
 
-                $pokemon["name"] = $data['name'];
+                $pokemon_name = explode("-", $data['name'])[0];
+
+                $pokemon["name"] = $pokemon_name;
+
+                foreach ($pokemon_extra_data['genera'] as $text) {
+                    if ($text["language"]["name"] == "en") {
+                        $pokemon["specie"] = $text['genus'];
+                    }
+                }
 
                 foreach ($pokemon_extra_data['flavor_text_entries'] as $pokedex_entry) {
                     if ($pokedex_entry["version"]["name"] == "emerald") {
                         $pokemon["pokedex_entry"] = $pokedex_entry["flavor_text"];
+                        break;
                     }
                 }
 
@@ -95,7 +105,7 @@ class CreatePokemonsFromAPI extends Command
 
                         if ($region->name == "national") {
 
-                            $sprite = sprintf('%04d', $pokedex_number["entry_number"]) . " " . ucfirst($pokemon->name) . ".png";
+                            $sprite = sprintf('%04d', $pokedex_number["entry_number"]) . " " . $pokemon_name . ".png";
 
                             if (Storage::disk('sprites')->exists($sprite)) {
                                 $pokemon->update(["sprite" => Storage::disk('sprites')->path($sprite)]);
@@ -104,6 +114,21 @@ class CreatePokemonsFromAPI extends Command
                         }
                     }
                 }
+
+                foreach ($pokemon_data["types"] as $type) {
+                    $type_name = $type["type"]["name"];
+                    $type = Type::where('name', $type_name);
+                    if (!($type->exists())) {
+                        $type = Type::create(["name" => $type_name]);
+                    } else {
+                        $type = $type->first();
+                    }
+
+                    $type->pokemons()->attach(
+                        $pokemon->id
+                    );
+                }
+                echo "Created " . $pokemon_name . PHP_EOL;
             }
         } else {
             logger()->error('API call failed', ['status' => $response->status(), 'body' => $response->body()]);

@@ -16,3 +16,5 @@ Route::get('pokemon/national_number/{num}', [RegionController::class, 'getPokemo
 Route::get('pokemon/name/{pokemon:name}', [PokemonController::class, 'getPokemonByName']);
 
 Route::get('pokemon/sprite/{pokemon:name}', [PokemonController::class, 'getPokemonSpriteByName']);
+
+Route::get('region/{region:name}', [RegionController::class, 'getPokemonByRegion']);

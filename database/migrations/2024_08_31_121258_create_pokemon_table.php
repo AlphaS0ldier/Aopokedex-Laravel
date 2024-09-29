@@ -14,10 +14,7 @@ return new class extends Migration
         Schema::create('pokemon', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            //regions;
-            //$table->foreignId('type_1')->constrained('types')->onDelete('cascade');
-            //$table->foreignId('type_1')->nullable()->constrained('types')->onDelete('cascade');
-            //$table->foreign('species');
+            $table->string('specie')->nullable();
             //$table->foreign('abilities');
             //$table->foreign('evolutions');
             $table->string('sprite')->nullable();
