@@ -12,8 +12,7 @@ class PokemonController extends Controller
 
 
         foreach ($pokemons as $pokemon) {
-            $pokemon->regions;
-            $pokemon->types;
+            PokemonController::showPokemonExtraData($pokemon);
         }
     }
 

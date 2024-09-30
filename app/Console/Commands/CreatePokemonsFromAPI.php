@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Ability;
 use App\Models\Pokemon;
 use App\Models\Region;
 use App\Models\Type;
@@ -16,7 +17,7 @@ class CreatePokemonsFromAPI extends Command
      *
      * @var string
      */
-    protected $signature = 'app:create-pokemons-from-a-p-i {limit}';
+    protected $signature = 'app:create-pokemons-from-a-p-i';
 
     /**
      * The console command description.
@@ -31,9 +32,72 @@ class CreatePokemonsFromAPI extends Command
     public function handle()
     {
 
-        $regions = ["national", "kanto", "original-johto", "hoenn"];
+        $url = env("POKEMON_URL_GENERATION");
+        $num_generation = env("POKEMON_GENERATION");
+        $last_generation = getDataFromPokeApi($url)["count"];
+        $main_generation = getDataFromPokeApi($url . $num_generation)["main_region"]["name"];
 
-        $limit = $this->argument('limit');
+        if ($last_generation > $num_generation) {
+            $data = getDataFromPokeApi($url . ($num_generation + 1))["pokemon_species"][0];
+            $limit = getDataFromPokeApi($data["url"])["id"] - 1;
+        } else {
+            $limit = getDataFromPokeApi("https://pokeapi.co/api/v2/pokemon-species")["count"];
+        }
+
+        $games = getDataFromPokeApi($url . $num_generation)["version_groups"];
+
+        $options = [];
+
+        foreach ($games as $game) {
+            $game_name = $game["name"];
+            $game_data = getDataFromPokeApi($game["url"])["pokedexes"];
+            if (!empty($game_data)) {
+                $options[] = $game_name;
+            }
+        }
+
+        $game = $this->choice(
+            'Please select a game',
+            $options,
+            0
+        );
+
+        //$game = "emerald";
+
+        $this->info('You selected: ' . $game);
+
+        $pokedexes = ["national"];
+
+        $pokedexes_data = getDataFromPokeApi($url)["results"];
+
+        foreach ($pokedexes_data as $key => $data) {
+            if ($num_generation > $key) {
+                $region = getDataFromPokeApi($data["url"]);
+                if (($key + 1) == $num_generation) {
+                    $versions = $region["version_groups"];
+
+                    foreach ($versions as $version) {
+
+                        if ($version["name"] == $game) {
+                            $pokedex_name = getDataFromPokeApi($version["url"])["pokedexes"][0]["name"];
+                            break;
+                        }
+                    }
+                } else {
+                    $main_game = $region["version_groups"][0];
+                    $pokedex_name = getDataFromPokeApi($main_game["url"])["pokedexes"][0]["name"];
+                }
+
+                $pokedexes[] = $pokedex_name;
+
+            } else {
+                break;
+            }
+        }
+
+        dd($pokedexes);
+
+        dd($options);
 
         $response = Http::get(
             'https://pokeapi.co/api/v2/pokemon',
@@ -59,7 +123,7 @@ class CreatePokemonsFromAPI extends Command
 
                 $pokemon_extra_data = getDataFromPokeApi($pokemon_data["species"]["url"]);
 
-                $pokemon_name = explode("-", $data['name'])[0];
+                $pokemon_name = $pokemon_extra_data["species"]["name"];
 
                 $pokemon["name"] = $pokemon_name;
 
@@ -70,7 +134,7 @@ class CreatePokemonsFromAPI extends Command
                 }
 
                 foreach ($pokemon_extra_data['flavor_text_entries'] as $pokedex_entry) {
-                    if ($pokedex_entry["version"]["name"] == "emerald") {
+                    if ($pokedex_entry["version"]["name"] == $game) {
                         $pokemon["pokedex_entry"] = $pokedex_entry["flavor_text"];
                         break;
                     }
@@ -115,7 +179,13 @@ class CreatePokemonsFromAPI extends Command
                     }
                 }
 
-                foreach ($pokemon_data["types"] as $type) {
+                if (empty($pokemon_data["past_types"])) {
+                    $pokemon_types = $pokemon_data["types"];
+                } else {
+                    $pokemon_types = $pokemon_data["past_types"]["types"];
+                }
+
+                foreach ($pokemon_types as $type) {
                     $type_name = $type["type"]["name"];
                     $type = Type::where('name', $type_name);
                     if (!($type->exists())) {
@@ -128,6 +198,47 @@ class CreatePokemonsFromAPI extends Command
                         $pokemon->id
                     );
                 }
+
+                foreach ($pokemon_data["abilities"] as $ability) {
+
+
+                    $ability_data = getDataFromPokeApi($ability["ability"]["url"]);
+
+                    foreach ($ability_data['flavor_text_entries'] as $text) {
+                        if ($text["version_group"]["name"] == $game && $text["language"]["name"] == "en") {
+                            $ability_flavour_text = $text["flavor_text"];
+                            break;
+                        }
+                    }
+
+                    if (!empty($ability_flavour_text)) {
+                        foreach ($ability_data['effect_entries'] as $text) {
+                            if ($text["language"]["name"] == "en") {
+                                $ability_effect_entry_full = $text["effect"];
+                                $ability_effect_entry_short = $text["short_effect"];
+                                break;
+                            }
+                        }
+
+                        $ability_name = $ability_data["name"];
+
+                        $ability = Ability::where('name', $ability_name);
+
+                        if (!$ability->exists()) {
+                            $ability = Ability::create(
+                                [
+                                    "name" => $ability_name,
+                                    "flavour_text" => $ability_flavour_text,
+                                    "effect_full" => $ability_effect_entry_full,
+                                    "effect_short" => $ability_effect_entry_short
+                                ]
+                            );
+                        } else {
+                            $ability = $ability->first();
+                        }
+                    }
+                }
+
                 echo "Created " . $pokemon_name . PHP_EOL;
             }
         } else {
