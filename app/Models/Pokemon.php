@@ -13,17 +13,17 @@ class Pokemon extends Model
 
     public function regions()
     {
-        return $this->belongsToMany(Region::class)->as("region")->withPivot("pokedex_number");
+        return $this->belongsToMany(Region::class)->as("region")->withPivot("pokedex_number")->select("name");
     }
 
     public function types()
     {
-        return $this->belongsToMany(Type::class)->as("type");
+        return $this->belongsToMany(Type::class)->as("type")->select("name","image");
     }
 
     public function abilities()
     {
-        return $this->belongsToMany(Ability::class)->as("ability");
+        return $this->belongsToMany(Ability::class)->as("ability")->withPivot("hidden")->select("name","flavour_text");
     }
 
 }

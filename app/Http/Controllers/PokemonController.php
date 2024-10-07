@@ -21,6 +21,7 @@ class PokemonController extends Controller
     {
         $pokemon->regions;
         $pokemon->types;
+        $pokemon->abilities;
     }
 
     public static function getPokemon()
@@ -28,6 +29,11 @@ class PokemonController extends Controller
         $pokemons = Pokemon::all();
         PokemonController::showPokemonExtraDataAll($pokemons);
         return response($pokemons);
+    }
+
+    public static function getPokemonByNationalNumber(Pokemon $pokemon) {
+        PokemonController::showPokemonExtraData($pokemon);
+        return $pokemon;
     }
 
     public static function getPokemonByName(Pokemon $pokemon)

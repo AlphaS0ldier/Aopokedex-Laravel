@@ -9,11 +9,11 @@ class Type extends Model
 {
     use HasFactory;
 
-    protected $fillable=["name"];
+    protected $fillable=["name","image"];
 
     public function pokemons()
     {
-        return $this->belongsToMany(Pokemon::class)->as("type");
+        return $this->belongsToMany(Pokemon::class)->as("pokemon");
     }
 
 }

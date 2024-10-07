@@ -61,6 +61,11 @@ return [
             'root' => storage_path('sprites'),
             'throw' => false,
         ],
+        'types' => [
+            'driver' => 'local',
+            'root' => storage_path('types'),
+            'throw' => false,
+        ],
     ],
 
     /*

@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("flavour_text");
-            $table->string("effect_full");
-            $table->string("effect_short");
             $table->timestamps();
         });
     }

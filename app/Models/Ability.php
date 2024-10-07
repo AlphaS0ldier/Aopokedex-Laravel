@@ -9,10 +9,10 @@ class Ability extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["name", "flavour_text", "effect_full", "effect_short"];
+    protected $fillable = ["name", "flavour_text"];
 
-    public function abilities()
+    public function pokemons()
     {
-        return $this->belongsToMany(Pokemon::class);
+        return $this->belongsToMany(Pokemon::class)->as("ability")->withPivot("hidden");
     }
 }
